@@ -1,0 +1,37 @@
+package main
+
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/sha256"
+	"encoding/hex"
+	//"encoding/base64"
+	//"bufio"
+	"fmt"
+)
+func HashSHA256(keyStr string) []byte {
+	keyBytes := sha256.Sum256([]byte(keyStr))
+	return keyBytes[:]
+}
+func main() {
+		key := HashSHA256("6AYwFJffIFVVpYkCUFf4Jw==")
+		ciphertext, _ := hex.DecodeString("53616c7465645f5f06384396f495afcfae6bd5b5ac95ed9d3303ba9d5d75996d003e5f09cfe019d5bc22ed5f58931afc95b52bd8f27a2177799d171bab4ae2bcc26965307a4503b0ba94c03e602516bf7c3db210508b33680f814e362c5aadd0a58a80278055aaa637f47d04857b2e2b032fe2d72897359f11a8c0b87a9551b92cfc4a9603b1fabf507d8c7ff913361fb1c2d59be2fe60e237476011c1e82de5beac3da2080fdda4ee2a0cee2463334f58731aecf44bc956c5dd3822d60ef1addbd9bf75186da1b4de5e004572d694c061b68112e403f46e3f82a69bb745b941e23a42f9fd7724abb2e99f7f9447de21f68c46178a6e55e4e8cd417688e83cc7bc0a10b2eba760c4223b1855c3ad465f1c50fa66a99a160ec5e2d2b575e82a07dc55ce8cc77c06f94bb3c076e2dc8dbef3a1b4b170ce9b2e0a68687fb7eb6cc1b3f1a0a8db56a876053b92ef832336a832c65201a0a98848aea328a1a8c8e1094e70ad1b60fdfb8c1240c06dfe19ab3feb724e6298c28bd4ae8e8d412fc2e417208656e2639149e8637ef6bd8ed5040aa5527b4e6f75c64988710040abffd4eee630eb0b4fe0bdf68c9a2b3137108afe4ab9dfa84d29d9c4434e361c433bfa1a58ec68dda8fa0ad77a5950d2138a470b7711083a5186be88120c11b8dc5322ce0e66a70c0d659d5d3264f2b6e405bc97b12ac8bbfe2dd35f9b60e1191a66208eb43608780c16ec65de07417ea3d558ea96916d93a3af8a25ebc000ffd083018e376a2ffcc004fef64b55532d13cf57d3950a02e55380509bfa829138b37989de9a38ce738ef3329b9c12f6ce35a129a5b47aceaa8cdc49162b18bb9efa23595b3992e49daa7f40458ce7eeff19d16f07debba0e38271a2f304d2055413217cb2f5319712aaa6d592ea5b92df049ef2022a33aad558abd7524e935972f73a232af4f21ef64e5fc955836415d3a9eb19cc8a171f84920fde394094d30440eee1640c91afd9c3d297d2c385e7d64a343ee8ab47b2004108e04bd504ee31ba27969adcc98c28003189ac38d3a84511a417a7b4c2e5dd670ecade4c1b8d7556e675d93b72b73e838b35a3495540424b23875f5f091946e48b792d31839b4407bfb61164fadd3ce9b855d58ab4380e81ffbddbc2a7d87091aa876eb39aa9c0b2ebc53e6b7263d5c7ef105656f9ba5ae28121350b79150371e2b9b620eb4935d323a291ba9c49d119104cb1ee7565b556bceb661e392f71069f93feefc39c82b80a0271236f66d1d267b78e9429788c178fe9fa16f6ea784861c47bcd937cdb2a1d854ca24302e1f6539fefc6e88a6bca7a6d11927d96aa76ac8a2013097a95c11a0d2d539eafeb5f5a74d8ecd1b29a9e5e15108323508ca8f36258c0081d020818b05d")
+
+		block, err := aes.NewCipher(key)
+		if err != nil {
+			panic(err)
+		}
+		if len(ciphertext) < aes.BlockSize {
+			panic("ciphertext too short")
+		}
+		iv := ciphertext[:aes.BlockSize]
+		ciphertext = ciphertext[aes.BlockSize:]
+		if len(ciphertext)%aes.BlockSize != 0 {
+			panic("ciphertext is not a multiple of the block size")
+		}
+
+		mode := cipher.NewCBCDecrypter(block, iv)
+		mode.CryptBlocks(ciphertext, ciphertext)
+		fmt.Printf("%s", ciphertext)
+
+}
